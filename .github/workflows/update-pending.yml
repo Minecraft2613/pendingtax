@@ -9,9 +9,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Update pending-payments.json
         run: |
-          echo '${{ github.event.client_payload.data }}' > pending-payments.json
+          echo "$DATA" > pending-payments.json
+        env:
+          DATA: ${{ github.event.client_payload.data }}
+
       - name: Commit and Push
         run: |
           git config --global user.name "Tax Bot"
