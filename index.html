@@ -1,232 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🛡️ Admin Tax Portal</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #0f0f0f, #1e1e1e);
-      color: #fff;
-      margin: 0;
-      padding: 0;
-    }
-    .container {
-      max-width: 800px;
-      margin: auto;
-      padding: 20px;
-    }
-    h1 { text-align: center; color: #ffcc00; }
-    input, select, button {
-      display: block;
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      font-size: 16px;
-      border-radius: 6px;
-      border: none;
-    }
-    input, select { background: #222; color: #fff; border: 1px solid #444; }
-    button {
-      background: #ff8800;
-      color: black;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    .profile-box, .history-box {
-      background: #111;
-      padding: 15px;
-      border-radius: 10px;
-      margin-top: 20px;
-    }
-    canvas { width: 100% !important; height: auto !important; }
-  </style>
+  <meta charset="UTF-8">
+  <title>🔄 Sync Receiver</title>
 </head>
-<body>
-<div class="container">
-  <h1>🛡️ Admin Tax Portal</h1>
+<body style="background:#111;color:white;font-family:monospace;padding:20px;">
+  <h2>Pending Tax Sync Receiver</h2>
+  <div id="log">⏳ Waiting for sync...</div>
 
-  <div id="step1">
-    <select id="job"></select>
-    <select id="method">
-      <option value="Discord">Discord</option>
-      <option value="Instagram">Instagram</option>
-    </select>
-    <input id="contact" placeholder="Enter your Discord/Instagram username" />
-    <input id="mcid" placeholder="Enter your Minecraft Username" />
-    <button onclick="nextStep()">Check Tax</button>
-  </div>
-
-  <div id="profile" class="profile-box" style="display:none;"></div>
-  <div class="history-box" id="historyBox" style="display:none;"></div>
-  <canvas id="taxChart" style="display:none;"></canvas>
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    const currentPlayer = {};
-    const jsonDataURL = "https://raw.githubusercontent.com/Minecraft2613/taxst/main/tax-data.json";
-    const pendingURL = "https://api.github.com/repos/Minecraft2613/pendingtax/dispatches";
-    const transactionLog = "transaction-log.txt";
+    // Your GitHub token (PRIVATE, only used here)
+    const GITHUB_TOKEN = "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"; // Replace safely
+    const REPO = "Minecraft2613/pendingtax";
+    const EVENT_TYPE = "update-pending-data";
 
-    let paidPlayers = {}, paymentHistory = {}, dailyData = {}, chart;
-
-    async function nextStep() {
-      const job = document.getElementById("job").value;
-      const method = document.getElementById("method").value;
-      const contact = document.getElementById("contact").value.trim();
-      const mcid = document.getElementById("mcid").value.trim();
-      if (!mcid || !contact) return alert("Please fill all fields");
-
-      currentPlayer.id = mcid;
-      document.getElementById("step1").style.display = "none";
-      await loadOnlineData();
-      loadTax();
-    }
-
-    async function loadOnlineData() {
+    async function receiveSync() {
       try {
-        const res = await fetch(jsonDataURL);
-        const data = await res.json();
-        paidPlayers = data.paidPlayers || {};
-        paymentHistory = data.paymentHistory || {};
-      } catch (e) {
-        alert("⚠️ Could not load tax data.");
-      }
-    }
+        const res = await fetch(location.href, {
+          method: "GET",
+          cache: "no-store"
+        });
+        const data = await res.json().catch(() => null);
 
-    async function loadTax() {
-      try {
-        const res = await fetch(transactionLog);
-        const text = await res.text();
-        parseTransactions(text);
-      } catch {
-        alert("Failed to load transaction log.");
-      }
-    }
-
-    function parseTransactions(log) {
-      const lines = log.split(/\r?\n/);
-      let buy = 0, sell = 0;
-      dailyData = {};
-
-      lines.forEach(line => {
-        if (!line.includes(currentPlayer.id)) return;
-        const date = line.match(/\[(\d{4}-\d{2}-\d{2})/);
-        const day = date ? date[1].slice(5).replace('-', '/') : "";
-
-        const buyMatch = line.match(/bought.*?\$([\d,]+\.\d{2})/);
-        const sellMatch = line.match(/sold.*?\$([\d,]+\.\d{2})/);
-
-        if (buyMatch) {
-          const amt = parseFloat(buyMatch[1].replace(/,/g, ""));
-          const tax = +(amt * 0.04).toFixed(2);
-          buy += tax;
-          dailyData[day] = (dailyData[day] || 0) + tax;
+        if (!data || !data.player || typeof data.due !== "number") {
+          document.getElementById("log").innerText = "❌ Invalid request: missing fields.";
+          return;
         }
-        if (sellMatch) {
-          const amt = parseFloat(sellMatch[1].replace(/,/g, ""));
-          const tax = +(amt * 0.10).toFixed(2);
-          sell += tax;
-          dailyData[day] = (dailyData[day] || 0) + tax;
-        }
-      });
 
-      const total = buy + sell;
-      const paid = paidPlayers[currentPlayer.id] || 0;
-      const due = +(total - paid).toFixed(2);
-      const isAdvance = due < 0;
+        const payload = {};
+        payload[data.player] = +data.due.toFixed(2);
 
-      syncToGitHub(currentPlayer.id, due);
-
-      showProfile(buy, sell, total, paid, due, isAdvance);
-      renderChart();
-    }
-
-    function showProfile(buy, sell, total, paid, due, advanced) {
-      const box = document.getElementById("profile");
-      box.innerHTML = `<h3>Welcome, ${currentPlayer.id}</h3>
-        <p>Total Tax: $${total.toFixed(2)}</p>
-        <p>Buying Tax: $${buy.toFixed(2)} | Selling Tax: $${sell.toFixed(2)}</p>
-        <p>Status: <strong>${due === 0 ? (advanced ? "Advance Paid" : "No Tax Due") : "$" + due.toFixed(2) + " Due"}</strong></p>`;
-      box.style.display = "block";
-
-      const history = paymentHistory[currentPlayer.id] || [];
-      const histBox = document.getElementById("historyBox");
-      histBox.innerHTML = `<h3>Payment History</h3><ul>${history.map(e => `<li>$${e.amount} on ${e.date}</li>`).join('')}</ul>`;
-      histBox.style.display = "block";
-    }
-
-    function renderChart() {
-      const ctx = document.getElementById("taxChart").getContext("2d");
-      const labels = Object.keys(dailyData);
-      const values = Object.values(dailyData);
-
-      if (chart) chart.destroy();
-      chart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: "Daily Tax",
-            data: values,
-            borderColor: '#ffcc00',
-            fill: false,
-            tension: 0.3,
-            pointRadius: 4,
-            pointHoverRadius: 6
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                label: ctx => `$${ctx.raw.toFixed(2)}`
-              }
-            }
+        const response = await fetch(`https://api.github.com/repos/${REPO}/dispatches`, {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${GITHUB_TOKEN}`,
+            "Accept": "application/vnd.github+json",
+            "Content-Type": "application/json"
           },
-          scales: {
-            x: { title: { display: true, text: "Date" } },
-            y: { title: { display: true, text: "Tax ($)" } }
-          }
+          body: JSON.stringify({
+            event_type: EVENT_TYPE,
+            client_payload: {
+              data: JSON.stringify(payload)
+            }
+          })
+        });
+
+        if (response.ok) {
+          document.getElementById("log").innerText = `✅ Sync triggered for ${data.player} ($${payload[data.player]})`;
+        } else {
+          document.getElementById("log").innerText = `❌ GitHub Dispatch Failed: ${response.status}`;
         }
-      });
-      document.getElementById("taxChart").style.display = "block";
+      } catch (err) {
+        document.getElementById("log").innerText = "❌ Error occurred during sync.";
+        console.error(err);
+      }
     }
 
-    function syncToGitHub(playerName, dueAmount) {
-      const token = "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"; // 🔒 Replace this before using
-      const pendingData = {};
-      pendingData[playerName] = +dueAmount.toFixed(2); // Can be negative (advance)
-
-      fetch(pendingURL, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Accept": "application/vnd.github+json",
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          event_type: "update-pending-data",
-          client_payload: {
-            data: JSON.stringify(pendingData)
-          }
-        })
-      })
-      .then(res => {
-        if (res.ok) console.log("✅ Synced pending data");
-        else console.error("❌ Sync failed", res);
-      })
-      .catch(err => console.error("❌ Sync error", err));
-    }
-
-    window.onload = () => {
-      document.getElementById("job").innerHTML = ["Farmer", "Miner", "Trader", "Builder"]
-        .map(j => `<option>${j}</option>`).join("");
-    };
+    receiveSync();
   </script>
-</div>
 </body>
 </html>
