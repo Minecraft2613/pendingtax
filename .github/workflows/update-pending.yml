@@ -11,8 +11,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Update pending-payments.json
-        run: |
-          echo "$DATA" > pending-payments.json
+        run: echo "$DATA" > pending-payments.json
         env:
           DATA: ${{ github.event.client_payload.data }}
 
