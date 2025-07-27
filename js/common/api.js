@@ -7,7 +7,7 @@
 // ====================================================================================
 
 // IMPORTANT: Replace this with your actual deployed Cloudflare Worker URL
-const WORKER_URL = 'https://minecraft1.1987sakshamsingh.workers.dev';
+const WORKER_URL = 'https://your-worker-name.your-username.workers.dev';
 
 const simulatedCloudflareApi = {
   /**

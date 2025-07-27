@@ -10,6 +10,11 @@ const MAIN_AUTH_EMAIL_INPUT = document.getElementById('auth-email-input');
 const MAIN_AUTH_PASSWORD_INPUT = document.getElementById('auth-password-input');
 const MAIN_AUTH_MESSAGE_ELEM = document.getElementById('auth-message-main');
 const AUTH_WELCOME_MESSAGE = document.getElementById('auth-welcome-message');
+const AUTH_MINECRAFT_USERNAME_INPUT = document.getElementById('auth-minecraft-username-input');
+const AUTH_ACCOUNT_NAME_INPUT = document.getElementById('auth-account-name-input');
+const AUTH_PLATFORM_SELECT = document.getElementById('auth-platform-select'); // New platform select
+const RULES_CHECKBOX_CONTAINER = document.getElementById('rules-checkbox-container');
+const AGREE_RULES_CHECKBOX = document.getElementById('agree-rules-checkbox');
 
 // --- Auth Mode Toggle (Login / Create Account) ---
 let isCreateMode = false; // Initial state: Login
