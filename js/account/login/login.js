@@ -19,45 +19,9 @@ const AGREE_RULES_CHECKBOX = document.getElementById('agree-rules-checkbox');
 // --- Auth Mode Toggle (Login / Create Account) ---
 let isCreateMode = false; // Initial state: Login
 
-function setAuthMode(mode) {
-    isCreateMode = mode;
-    MAIN_AUTH_MESSAGE_ELEM.textContent = ''; // Clear messages
-
-    // Hide all create-account-specific fields first
-    AUTH_MINECRAFT_USERNAME_INPUT.style.display = 'none';
-    AUTH_ACCOUNT_NAME_INPUT.style.display = 'none';
-    AUTH_PLATFORM_SELECT.style.display = 'none';
-    document.querySelector('label[for="auth-platform-select"]').style.display = 'none'; // Hide label too
-    RULES_CHECKBOX_CONTAINER.style.display = 'none';
-    AUTH_MINECRAFT_USERNAME_INPUT.removeEventListener('input', forceDotPrefix); // Remove listener when not in bedrock create mode
-
-
-    if (isCreateMode) {
-        AUTH_WELCOME_MESSAGE.textContent = 'Thanks for Joining!';
-        AUTH_MINECRAFT_USERNAME_INPUT.style.display = 'block';
-        AUTH_ACCOUNT_NAME_INPUT.style.display = 'block';
-        AUTH_PLATFORM_SELECT.style.display = 'block';
-        document.querySelector('label[for="auth-platform-select"]').style.display = 'block';
-        RULES_CHECKBOX_CONTAINER.style.display = 'flex'; // Show rules checkbox
-        MAIN_AUTH_SUBMIT_BTN.textContent = 'Register Account';
-        TOGGLE_AUTH_MODE_BTN.textContent = 'Have an account? Login'; // Changed text
-    } else {
-        AUTH_WELCOME_MESSAGE.textContent = 'Welcome Back!';
-        MAIN_AUTH_SUBMIT_BTN.textContent = 'Login';
-        TOGGLE_AUTH_MODE_BTN.textContent = 'Don\'t have an account? Create one'; // Changed text
-    }
-    // Clear inputs when switching modes
-    MAIN_AUTH_EMAIL_INPUT.value = '';
-    MAIN_AUTH_PASSWORD_INPUT.value = '';
-    AUTH_MINECRAFT_USERNAME_INPUT.value = '';
-    AUTH_ACCOUNT_NAME_INPUT.value = '';
-    AUTH_PLATFORM_SELECT.value = ''; // Reset platform select
-    AGREE_RULES_CHECKBOX.checked = false;
-}
-
 TOGGLE_AUTH_MODE_BTN.addEventListener('click', (e) => {
     e.preventDefault();
-    setAuthMode(!isCreateMode);
+    window.setAuthMode(!isCreateMode);
 });
 
 MAIN_AUTH_SUBMIT_BTN.addEventListener('click', async (e) => {
