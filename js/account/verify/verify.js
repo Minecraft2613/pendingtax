@@ -32,13 +32,13 @@ window.addEventListener("DOMContentLoaded", async () => {
         } else {
             console.log('Could not fetch profile for stored email. Showing auth screen.');
             sessionStorage.removeItem('current_auth_email'); // Clear invalid session
-            setAuthMode(false); // Default to login mode
+            window.setAuthMode(false); // Default to login mode
             authScreen.style.display = "flex";
             mainContentWrapper.style.display = "none";
         }
     } else {
         console.log('No stored email found. Showing auth screen.');
-        setAuthMode(false); // Default to login mode
+        window.setAuthMode(false); // Default to login mode
         authScreen.style.display = "flex";
         mainContentWrapper.style.display = "none";
     }

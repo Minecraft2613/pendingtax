@@ -34,7 +34,7 @@ MAIN_AUTH_SUBMIT_BTN.addEventListener('click', async (e) => {
     if (isCreateMode) {
         // Register logic
         const minecraftUsername = AUTH_MINECRAFT_USERNAME_INPUT.value.trim();
-        const accountName = AUTH_MINECRAFT_ACCOUNT_NAME_INPUT.value.trim();
+        const accountName = AUTH_ACCOUNT_NAME_INPUT.value.trim();
         const minecraftEdition = AUTH_PLATFORM_SELECT.value; // Get selected edition
 
         if (!email || !password || !minecraftUsername || !accountName || !minecraftEdition) {
