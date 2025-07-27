@@ -14,7 +14,7 @@ const AUTH_MINECRAFT_USERNAME_INPUT = document.getElementById('auth-minecraft-us
 const AUTH_ACCOUNT_NAME_INPUT = document.getElementById('auth-account-name-input');
 const AUTH_PLATFORM_SELECT = document.getElementById('auth-platform-select'); // New platform select
 const RULES_CHECKBOX_CONTAINER = document.getElementById('rules-checkbox-container');
-const AGREE_RULES_CHECKBOX = document.getElementById('agree-rules-checkbox');
+const AGREE_RULES_CHECKBOX = document.getElementById('agree-rules-checkbox'); // Added comment to force reload
 
 // --- Auth Mode Toggle (Login / Create Account) ---
 let isCreateMode = false; // Initial state: Login
