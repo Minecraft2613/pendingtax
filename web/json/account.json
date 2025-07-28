@@ -28,5 +28,20 @@
     "lastLoggedIn": "2025-07-28T15:23:26.333Z",
     "lastLoggedOut": null,
     "changeCount": 0
+  },
+  {
+    "uid": "user_1753717038007wxm7ywhsc",
+    "email": "ansh@123",
+    "password": "26",
+    "profile": {
+      "minecraftUsername": "ansh",
+      "minecraftEdition": "java",
+      "accountName": "ansh",
+      "avatar": ""
+    },
+    "createdAt": "2025-07-28T15:37:18.007Z",
+    "lastLoggedIn": "2025-07-28T15:37:18.007Z",
+    "lastLoggedOut": null,
+    "changeCount": 0
   }
 ]
